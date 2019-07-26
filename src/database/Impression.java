@@ -106,11 +106,7 @@ public class Impression {
     }
 
     public void printImpressionMap() {
-        for (Map.Entry<String, String> tmp : ImpressionMap.entrySet()) {
-            if (tmp != null) {
-                System.out.println("Gia to keyWord " + tmp.getKey() + " impression is " + tmp.getValue());
-            }
-        }
+        ImpressionMap.forEach((key, value) -> { System.out.println("Gia to keyWord "+key+" impression is "+value); });
     }
 
     public String getImpressionUrlKeyWord(String url, String keyword) {
