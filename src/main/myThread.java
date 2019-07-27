@@ -21,13 +21,23 @@ public class myThread implements Runnable {
 
     // this.URL, < keyWord,timesFound>
     private LinkedHashMap<String, LinkedHashMap <String,Integer> > singleResults;
+    public ArrayList<String> getSearchTerms(){
+        return this.keyWords;
+    }
+    public boolean containsKeyWord(String keyword){
+        LinkedHashMap<String,Integer> tmp = singleResults.get(this.url);
+        if(tmp.containsKey(keyword) && tmp.get(keyword)>0)
+            return true;
+        else
+            return false;
+    }
 
     public myThread(String name,String url,ArrayList<String> keyWords) {
         this.singleResults = new LinkedHashMap<>();
         this.threadName = name;
         this.url = url;
         this.keyWords = keyWords;
-        System.out.println("Thread Constructor called, search at URL "+this.url+" the keywords: ");
+        System.out.println("Thread Constructor called, searching at URL "+this.url+" the keywords: ");
         keyWords.forEach(tmp-> System.out.println(tmp+" "));
     }
 
@@ -39,14 +49,14 @@ public class myThread implements Runnable {
         try{
             this.t.join();
         }catch (Exception ex){
-            System.out.println("Exception throwed at myThread join "+ex.getMessage());
+            System.out.println("Exception trowed at myThread join "+ex.getMessage());
         }
     }
 
     public String getName() { return this.threadName; }
 
     public void run() {
-        //System.out.println("Running " + threadName);
+
         try {
             StringBuffer got = new StringBuffer();
             try {
@@ -67,7 +77,6 @@ public class myThread implements Runnable {
                 pattern = Pattern.compile(tmpKey);
                 matcher = pattern.matcher(got);
                 while (matcher.find()){
-                    // System.out.println("found "+tmpKey+" in "+this.url);
                     timesFound++;
                 }
                 this.keimeno = got.toString();
@@ -77,7 +86,7 @@ public class myThread implements Runnable {
             singleResults.put(this.url,keyWordCount); // adding the results to map
             for(Map.Entry<String, LinkedHashMap<String, Integer>> tmp : singleResults.entrySet()){
                 if(tmp!=null){
-                    System.out.println("Sto url "+tmp.getKey()+" vrika ta keywords: ");
+                    System.out.println("At url "+tmp.getKey()+"  found keywords:");
                     if(!tmp.getValue().isEmpty()){
                         tmp.getValue().forEach((k,v)-> System.out.println("Keyword: ->"+k+"<-  Found: "+v+" Times."));
                     }
@@ -111,4 +120,5 @@ public class myThread implements Runnable {
         //notify();
         notifyAll();
     }
+
 }

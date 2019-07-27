@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 public class Impression {
 
-    LinkedHashMap<String, LinkedHashMap<String, String>> omg;//   URl  -->  <keyword,impressionStatus>
     LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression
 
     private String URL; // ID
@@ -18,7 +17,6 @@ public class Impression {
     private static ArrayList<String> badWordsGr;
     private static ArrayList<String> goodWordsEn;
     private static ArrayList<String> goodWordsGr;
-    private String impression;
     private String text;
 
     public Impression(String url, ArrayList<String> keyWords, String keimeno) {
@@ -33,8 +31,11 @@ public class Impression {
         return this.URL;
     }
 
-    private void setImpression() {
+    public LinkedHashMap<String,String> getImpressionMap(){
+        return this.ImpressionMap;
+    }
 
+    private void setImpression() {
         String delimiter = "\t\n\r\f ";
         this.text = text.replaceAll("[\\-\\[\\]\\/\\+\\.(){}!`~;'<_=>?\\^:,]", " ").replaceAll(" +", " ").trim();
         StringTokenizer tokenizer = new StringTokenizer(text, delimiter);
@@ -46,6 +47,7 @@ public class Impression {
 //        }
         String[] splited = this.text.split("\\s+");
         List<String> textSplited = Arrays.asList(splited);
+        //positionOfKeyword contains the index of a keyword found each time at the text.
         ArrayList<Integer> positionOfKeyword = new ArrayList<>();
 
         System.out.println("Impression for Thread with URL "+this.URL);
@@ -53,27 +55,19 @@ public class Impression {
 
             if(text.contains(keyWord)){ // if keyWord exists in text
                 int positiveScore =0, negativeScore=0;
-            //    System.out.println("Enter if for contains keyword");
                 for(int pos = 0; pos < textSplited.size();pos++){  // for each word of the text
                     if(textSplited.get(pos).equals(keyWord))
-                        positionOfKeyword.add(pos);//an uparxei to keywork, save the index of it
+                        positionOfKeyword.add(pos);//if keyword exists, save the index of it
                 } // position mapping for
-           //     System.out.println("To keyword "+keyWord+" exists at");
-                //if(this.URL.equals("http://www.gazzetta.gr/"))
-                    //textSplited.forEach(tmp-> System.out.print(tmp+" , "));
+                    //System.out.println("To keyword "+keyWord+" exists at");
 
                 //iterate the array holding position of keywords in text
                 for(int i=0;i<positionOfKeyword.size();i++){
                     //checking for impression words forward 15 words
                     var localCounter1 =0;
                     for(var forward = positionOfKeyword.get(i);forward < textSplited.size();forward++ ){
-
-                       // System.out.println("Checking "+textSplited.get(forward)+" with goodWord");
-                        //if(textSplited.get(forward).matches("(.*)κυρίαρχη(.*)"))
-                            //System.out.println("found good word forward");
                         positiveScore += positiveScore(textSplited.get(forward));
                         negativeScore += negativeScore(textSplited.get(forward));
-
                         localCounter1++;
                         if(localCounter1 == 15) //if 15 words reached, break
                             break;
@@ -92,12 +86,11 @@ public class Impression {
                     } // backward for
 
                 }//iterate the array holding position of keywords in text
-                // no we have both scores. add them to the map
-                //System.out.println("kanw add to map to keyword "+ keyWord);
+                // no we have both scores. adding them to the map
                 if(positiveScore > negativeScore) ImpressionMap.put(keyWord,"Positive");
                 else if(negativeScore > positiveScore) ImpressionMap.put(keyWord,"Negative");
                 else ImpressionMap.put(keyWord,"Neutral");
-            }//if keyword exists in text
+            }//End of IF keyword exists in text
 
         }//keyword for
 
@@ -106,7 +99,7 @@ public class Impression {
     }
 
     public void printImpressionMap() {
-        ImpressionMap.forEach((key, value) -> { System.out.println("Gia to keyWord "+key+" impression is "+value); });
+        ImpressionMap.forEach((key, value) -> { System.out.println("For keyWord ->"+key+"<- Impression is "+value); });
     }
 
     public String getImpressionUrlKeyWord(String url, String keyword) {
@@ -126,9 +119,6 @@ public class Impression {
 //                System.out.println("Gia to keyWord "+tmp.getKey()+" impression is "+tmp.getValue());
 //            }
 //        }
-//        for(String key :  ImpressionMap.keySet())
-//            System.out.println("TA GAMHMENO KEYWORD EINAI "+key+" to size tou map: "+this.ImpressionMap.size());
-
         return "";
     }
 
@@ -182,9 +172,6 @@ public class Impression {
                 score++;
         }
         for(String tmp : goodWordsGr){
-//            if(this.URL.equals("http://www.gazzetta.gr/")){
-//                System.out.println("checking "+tmp+" with "+input);
-//            }
             if(input.matches("(.*)"+tmp+"(.*)"))
                 score++;
         }
@@ -207,7 +194,6 @@ public class Impression {
         }
         return score;
     }
-
 
 }
 // kathe thread exei ena impression, pou to kathena mesa krataei ena map URL-keyword kai ejagei impression

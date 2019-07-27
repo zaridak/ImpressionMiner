@@ -115,14 +115,15 @@ public class menu {
                         //public Result(ArrayList<myThread> all, ArrayList<String> keyWords, ArrayList<String> searchedURLs){
                         Result res = new Result(startMine.getMyThreads(),this.searchTerms,this.listOfURL);
                         // for to iterate all threads
-                        for(myThread tmp : startMine.getMyThreads()){
-                            res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno()));
-                        }
+//                      for(myThread tmp : startMine.getMyThreads()){res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno())); }
+                        // run all threads and create a new Impression from them -> add it to res
+                        startMine.getMyThreads().forEach( (tmp)->res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno())));
+
                         //  putMeInAClass(startMine.getMyThreads());
-                        // todo res.saveResultsInDB(startMine.getMyThreads());
+                        // todo res.saveResultsInDB(startMine.getMyThreads());+ res.printResults(startmine.getMythreads
+                        res.printResults(startMine.getMyThreads());
                     }
                 }
-
             }
             else if (userInput == 4) {
                 go.close();
@@ -154,7 +155,6 @@ public class menu {
 
 //    public void putMeInAClass(ArrayList<myThread> printMe){   //same code myThread live 75
 //        LinkedHashMap<String, LinkedHashMap<String,Integer>> wtf;
-//
 //        for(myThread tmp : printMe){
 //            wtf = tmp.getSingleResults();
 //            for(Map.Entry<String, LinkedHashMap<String, Integer>> run : wtf.entrySet()){
