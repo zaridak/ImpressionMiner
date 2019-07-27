@@ -1,15 +1,12 @@
 package database;
 
-import javax.swing.plaf.basic.BasicDesktopIconUI;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Impression {
 
-    LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression
+    LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression for one thread/url
 
     private String URL; // ID
     private ArrayList<String> keywords;
