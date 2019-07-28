@@ -3,6 +3,7 @@ package main;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
 public class myThread implements Runnable {
 
     public Thread t;
-    private String threadName;
+    private String threadName; //id
     boolean suspended = false;
     private String url;
     private ArrayList<String> keyWords;
@@ -24,6 +25,7 @@ public class myThread implements Runnable {
     public ArrayList<String> getSearchTerms(){
         return this.keyWords;
     }
+
     public boolean containsKeyWord(String keyword){
         LinkedHashMap<String,Integer> tmp = singleResults.get(this.url);
         if(tmp.containsKey(keyword) && tmp.get(keyword)>0)
@@ -56,7 +58,6 @@ public class myThread implements Runnable {
     public String getName() { return this.threadName; }
 
     public void run() {
-
         try {
             StringBuffer got = new StringBuffer();
             try {
@@ -76,15 +77,14 @@ public class myThread implements Runnable {
                 timesFound = 0;
                 pattern = Pattern.compile(tmpKey);
                 matcher = pattern.matcher(got);
-                while (matcher.find()){
+                while (matcher.find())
                     timesFound++;
-                }
                 this.keimeno = got.toString();
                 //System.out.println("Eimai to thread "+this.threadName+" brika to "+tmpKey+" sto "+this.url+" "+timesFound+" fores");
                 keyWordCount.put(tmpKey,timesFound);
             }
             singleResults.put(this.url,keyWordCount); // adding the results to map
-            for(Map.Entry<String, LinkedHashMap<String, Integer>> tmp : singleResults.entrySet()){
+            for(Map.Entry<String, LinkedHashMap<String, Integer> > tmp : singleResults.entrySet()){
                 if(tmp!=null){
                     System.out.println("At url "+tmp.getKey()+"  found keywords:");
                     if(!tmp.getValue().isEmpty()){

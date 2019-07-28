@@ -108,7 +108,6 @@ public class Result implements ResultDAO {
                                 } else { // if already added update current count Variable (getValue)
                                     kwTotalOccurrences.replace(run.getKey(), run.getValue() + kwTotalOccurrences.get(run.getKey()));
                                 }
-
                             }
                         }
                     }

@@ -3,9 +3,8 @@ package main;
 import database.Impression;
 import database.Result;
 import targetURL.targetURL;
+
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class menu {
@@ -87,9 +86,9 @@ public class menu {
         Scanner go = new Scanner(System.in);
         do {
             System.out.println("Press 1 to edit target URLs");
-            System.out.println("Press 2 to enter search terms");
-            System.out.println("Press 3 to init Mining");
-            System.out.println("Press 4 to exit");
+            System.out.println("Press 2 to Εnter search terms");
+            System.out.println("Press 3 to Ιnit Mining");
+            System.out.println("Press 4 to Εxit");
 
             userInput = posNum(go);  // return in else if repeats menu
             if (userInput == 1) {

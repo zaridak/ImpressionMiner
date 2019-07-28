@@ -15,6 +15,7 @@ public class Mining {
         this.allKeyWords = AllKeyWords;
         this.myThreads = new ArrayList<>();
         IntStream.range(0, allURLs.size()).forEachOrdered(i -> myThreads.add(new myThread(String.valueOf(i), allURLs.get(i), this.allKeyWords)));
+        //for (i=0;  i < allURLs.size()
     }
 
     public ArrayList<myThread> getMyThreads(){return this.myThreads;}
