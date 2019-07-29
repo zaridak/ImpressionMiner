@@ -2,6 +2,9 @@ package database;
 
 import main.myThread;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.*;
 
 public class Result implements ResultDAO {
@@ -132,6 +135,7 @@ public class Result implements ResultDAO {
 
         for (Map.Entry<String, Integer> lol : kwTotalOccurrences.entrySet()) {
             System.out.println("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times");
+            // Append to DB; me string buffer
         }
 
         //System.out.println("keyword, url -> times found ");
@@ -172,7 +176,12 @@ public class Result implements ResultDAO {
                 //System.out.println("For url "+tmp.getKey()+" No impressions exist: ");
             } else {
                 System.out.println("For url " + tmp.getKey() + " Impressions are: ");
-                tmp.getValue().forEach((k,v)-> System.out.println("Keyword: " + k + " Impression is: " + v));
+                tmp.getValue().forEach((k,v)-> {
+                            System.out.println("Keyword: " + k + " Impression is: " + v);
+                            k.insertToDB(""+k+v);
+                        });
+
+
 //                for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
 //                    System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
 //                }
@@ -180,5 +189,31 @@ public class Result implements ResultDAO {
 
         }
         System.out.println("\n\n");
+    }
+
+
+    public void insertToDB(String resultString) {
+        Connection c = null;
+        Statement stmt = null;
+        try {
+            Class.forName("org.postgresql.Driver");
+            c = DriverManager
+                    .getConnection("jdbc:postgresql://nickolasbenakis:5434/results");
+            c.setAutoCommit(false);
+            System.out.println("Opened database successfully");
+
+            stmt = c.createStatement();
+            String sql = "INSERT INTO results (id, impressions)"
+                    + "VALUES (1," +resultString+")";
+            stmt.executeUpdate(sql);
+
+
+            stmt.close();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            System.exit(0);
+        }
     }
 }
