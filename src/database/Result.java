@@ -2,7 +2,15 @@ package database;
 
 import main.myThread;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+//import java.beans.Statement;
 
 public class Result implements ResultDAO {
 
@@ -11,6 +19,9 @@ public class Result implements ResultDAO {
     private ArrayList<String> urlsSearched;
     private ArrayList<Impression> allImpressions;
     private String keyWordPerUrl = "";
+    private StringBuffer aek = null;
+
+    public StringBuffer getAek(){return this.aek;}
     // PRINT REQUEST 1
     // Sunolikos arithmos emfanisewn kathe keyword se OLA TA URL, ARA KEYWORD -> TIMES FOUND TOTAL
 
@@ -40,6 +51,7 @@ public class Result implements ResultDAO {
         whichUrlAndCount = new LinkedHashMap<>();
         kwTotalOccurrences = new LinkedHashMap<>();
         kwUrlImpression = new LinkedHashMap<>();
+        this.aek = new StringBuffer();
     }
 
     public void addImpression(Impression toAdd){this.allImpressions.add(toAdd);}
@@ -62,8 +74,31 @@ public class Result implements ResultDAO {
     }
 
     @Override
-    public void saveResultsInDB(ArrayList<myThread> allThreads) {
+    public void saveResultsInDB(String resultString) {
         //TODO STORE results in DB after calculation get singleResults from each thread
+        Connection c = null;
+        Statement stmt = null;
+        final String url = "jdbc:postgresql://localhost/postgres";
+        final String user = "postgres";
+        final String password = "root";
+        try {
+            c = DriverManager.getConnection(url, user, password);
+            c.setAutoCommit(false);
+            System.out.println("Opened database successfully");
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Date date = new Date();
+            String formatted = dateFormat.format(date);
+
+            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impression,date) VALUES (?, ?)");
+            st.setString(1, resultString);
+            st.setString(2, formatted);
+            st.executeUpdate();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+        }
     }
 
     /*
@@ -117,7 +152,6 @@ public class Result implements ResultDAO {
             System.out.println("And the Impressions Are: ****");
 
             if (!tmpImpression.isEmpty()) {
-
                 tmpImpression.forEach((key, value) -> {
                     System.out.println("For keyWord ->" + key + "<- Impression is " + value);
                 });
@@ -171,13 +205,22 @@ public class Result implements ResultDAO {
                 //System.out.println("For url "+tmp.getKey()+" No impressions exist: ");
             } else {
                 System.out.println("For url " + tmp.getKey() + " Impressions are: ");
-                tmp.getValue().forEach((k,v)-> System.out.println("Keyword: " + k + " Impression is: " + v));
-//                for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
-//                    System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
-//                }
-            }
 
+//                tmp.getValue().forEach((k,v)->{
+//                    StringBuffer aek = null;
+//                    aek.append("Keyword: " + k + " Impression is: " + v);
+//                    System.out.println("Keyword: " + k + " Impression is: " + v);
+//                        });
+                for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
+                    if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty() && !run.getValue().isEmpty()) {
+                        System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
+                        aek.append("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
+                    }
+                }
+            }
         }
+        //TODO fix String's format and input stored in it
+        //saveResultsInDB(aek.toString());
         System.out.println("\n\n");
     }
 }

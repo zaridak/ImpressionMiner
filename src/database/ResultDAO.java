@@ -8,7 +8,7 @@ import java.util.List;
 public interface ResultDAO {
 
     List<myThread> getAllThreads();
-    void saveResultsInDB(ArrayList<myThread> allThreads);
+    void saveResultsInDB(String toInsert);
     void printResults(ArrayList<myThread> allThreads);
 
 }
