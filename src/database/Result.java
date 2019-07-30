@@ -219,7 +219,7 @@ public class Result implements ResultDAO {
                 }
             }
         }
-        //TODO fix String's format and input stored in it
+        //TODO fix ΑΕΚ String's format and input stored in it change name AEK and the function getAEK
         //saveResultsInDB(aek.toString());
         System.out.println("\n\n");
     }
