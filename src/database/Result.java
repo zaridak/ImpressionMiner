@@ -19,9 +19,9 @@ public class Result implements ResultDAO {
     private ArrayList<String> urlsSearched;
     private ArrayList<Impression> allImpressions;
     private String keyWordPerUrl = "";
-    private StringBuffer aek = null;
+    private StringBuffer dbBufferString = null;
 
-    public StringBuffer getAek(){return this.aek;}
+    public StringBuffer getDbBufferString(){return this.dbBufferString;}
     // PRINT REQUEST 1
     // Sunolikos arithmos emfanisewn kathe keyword se OLA TA URL, ARA KEYWORD -> TIMES FOUND TOTAL
 
@@ -51,7 +51,7 @@ public class Result implements ResultDAO {
         whichUrlAndCount = new LinkedHashMap<>();
         kwTotalOccurrences = new LinkedHashMap<>();
         kwUrlImpression = new LinkedHashMap<>();
-        this.aek = new StringBuffer();
+        this.dbBufferString = new StringBuffer();
     }
 
     public void addImpression(Impression toAdd){this.allImpressions.add(toAdd);}
@@ -79,10 +79,8 @@ public class Result implements ResultDAO {
         Connection c = null;
         Statement stmt = null;
         final String url = "jdbc:postgresql://localhost/postgres";
-        final String user = "postgres";
-        final String password = "root";
         try {
-            c = DriverManager.getConnection(url, user, password);
+            c = DriverManager.getConnection(url);
             c.setAutoCommit(false);
             System.out.println("Opened database successfully");
 
@@ -90,7 +88,7 @@ public class Result implements ResultDAO {
             Date date = new Date();
             String formatted = dateFormat.format(date);
 
-            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impression,date) VALUES (?, ?)");
+            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impressions,timedate) VALUES (?, ?)");
             st.setString(1, resultString);
             st.setString(2, formatted);
             st.executeUpdate();
@@ -128,8 +126,10 @@ public class Result implements ResultDAO {
             // this.URL, < keyWord,timesFound>
             for (Map.Entry<String, LinkedHashMap<String, Integer>> tmp : tmpSingleResult.entrySet()) {
                 if (tmp != null) {
+                    dbBufferString.append("At url " + tmp.getKey() + "  found keywords: \n");
                     System.out.println("At url " + tmp.getKey() + "  found keywords:");
                     this.keyWordPerUrl += "At url " + tmp.getKey() + " found keywords: \n";
+
                     if (!tmp.getValue().isEmpty()) {
                         for (Map.Entry<String, Integer> run : tmp.getValue().entrySet()) {
                             kwTmpName = run.getKey();
@@ -165,6 +165,8 @@ public class Result implements ResultDAO {
 
         for (Map.Entry<String, Integer> lol : kwTotalOccurrences.entrySet()) {
             System.out.println("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times");
+            dbBufferString.append("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times \n");
+
         }
 
         //System.out.println("keyword, url -> times found ");
@@ -195,9 +197,20 @@ public class Result implements ResultDAO {
                 }
             }
         }
-        kwURLNumber.forEach((k, v) -> System.out.println("keyword " + k + " found at " + v + "/" + this.urlsSearched.size() + " urls"));
-        kwURLName.forEach((k, v) -> System.out.println("keyword " + k + " found at url:  " + v));
-
+        //kwURLNumber.forEach((k, v) -> System.out.println("keyword " + k + " found at " + v + "/" + this.urlsSearched.size() + " urls"));
+        for (Map.Entry<String, Integer> run : kwURLNumber.entrySet()) {
+            if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty()) {
+                System.out.println("keyword " + run.getKey() + " found at " + run.getValue() + "/" + this.urlsSearched.size() + " urls");
+                dbBufferString.append("keyword " + run.getKey() + " found at " + run.getValue() + "/" + this.urlsSearched.size() + " urls \n");
+            }
+        }
+        //kwURLName.forEach((k, v) -> System.out.println("keyword " + k + " found at url:  " + v));
+        for (Map.Entry<String, String> run : kwURLName.entrySet()) {
+            if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty()) {
+                System.out.println("keyword " + run.getKey() + " found at url:  " + run.getKey());
+                dbBufferString.append("keyword " + run.getKey() + " found at url:  " + run.getKey()+ " \n");
+            }
+        }
         System.out.println("\n\n****Impression to DB****\n");
         for (Map.Entry<String, LinkedHashMap<String, String>> tmp : this.kwUrlImpression.entrySet()) {
             if (tmp.getValue().isEmpty()) {
@@ -214,12 +227,12 @@ public class Result implements ResultDAO {
                 for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
                     if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty() && !run.getValue().isEmpty()) {
                         System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
-                        aek.append("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
+                        dbBufferString.append("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
                     }
                 }
             }
         }
-        //TODO fix ΑΕΚ String's format and input stored in it change name AEK and the function getAEK
+        //TODO fix ΑΕΚ String's format and input stored in it
         //saveResultsInDB(aek.toString());
         System.out.println("\n\n");
     }

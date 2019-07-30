@@ -121,7 +121,8 @@ public class menu {
                         //  putMeInAClass(startMine.getMyThreads());
                         // todo res.saveResultsInDB(startMine.getMyThreads());+ res.printResults(startmine.getMythreads
                         res.printResults(startMine.getMyThreads());
-                        res.saveResultsInDB(res.getAek().toString());
+                        res.saveResultsInDB(res.getDbBufferString().toString());
+                        System.out.println("TO STRING EINAI \n " + res.getDbBufferString().toString());
                     }
                 }
             }
