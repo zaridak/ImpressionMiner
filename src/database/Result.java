@@ -98,6 +98,34 @@ public class Result implements ResultDAO {
             System.err.println( e.getClass().getName()+": "+ e.getMessage() );
         }
     }
+                    /*  //TODO ZARIDAK CONNECTION STRING
+    @Override
+    public void saveResultsInDB(String resultString) {
+        //TODO STORE results in DB after calculation get singleResults from each thread
+        Connection c = null;
+        Statement stmt = null;
+        final String url = "jdbc:postgresql://localhost/postgres";
+        final String user = "postgres";
+        final String password = "root";
+        try {
+            c = DriverManager.getConnection(url, user, password);
+            c.setAutoCommit(false);
+            System.out.println("Opened database successfully");
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Date date = new Date();
+            String formatted = dateFormat.format(date);
+
+            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impression,date) VALUES (?, ?)");
+            st.setString(1, resultString);
+            st.setString(2, formatted);
+            st.executeUpdate();
+            c.commit();
+            c.close();
+        } catch (Exception e) {
+            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+        }
+    } */
 
     /*
         //keyWord -> totalTimes
