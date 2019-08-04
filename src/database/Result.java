@@ -2,12 +2,10 @@ package database;
 
 import main.myThread;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.*;
 
 //import java.beans.Statement;
@@ -45,6 +43,21 @@ public class Result implements ResultDAO {
     //PRINT REQUEST 3
     //Gia kathe keyword, pososto emfanishs se URL  px to keyword: lola uphrxe se 5 apo 10 URL TODO MERGE WITH request 2
 
+    public Result(Result res){
+        super();
+        this.urlsSearched = new ArrayList<>(res.urlsSearched);
+        keyWords = new ArrayList<>();
+        this.allThreads = new ArrayList<>(res.allThreads);
+        this.allImpressions = new ArrayList<>(res.allImpressions);
+        Impression.loadImpressionWords();
+        whichUrlAndCount = new LinkedHashMap<>(res.whichUrlAndCount);
+        kwTotalOccurrences = new LinkedHashMap<>(res.kwTotalOccurrences);
+        kwUrlImpression = new LinkedHashMap<>(res.kwUrlImpression);
+
+
+    }
+
+
     public Result(ArrayList<myThread> all, ArrayList<String> keyWords, ArrayList<String> searchedURLs){
         this.urlsSearched = new ArrayList<>();
         this.urlsSearched = searchedURLs;
@@ -79,8 +92,59 @@ public class Result implements ResultDAO {
     }
 
     @Override
-    public List<myThread> getAllThreads() {
-        return this.allThreads;
+    public List<myThread> getAllThreads() { return this.allThreads; }
+
+    @Override
+    public void loadAllFromDB() {
+
+        try {
+            c = DriverManager.getConnection(url, user, password);
+            c.setAutoCommit(false);
+
+            Statement st = c.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * from keywords");
+            LinkedHashSet<String> dates = new LinkedHashSet<>();
+            String change ="";
+            while (rs.next()) {
+
+                if(!change.equals(rs.getString(1))){
+                    Statement st2 = c.createStatement();
+                    ResultSet rs2 = st2.executeQuery("select * from results where mdate = '"+change+"'");
+                    while(rs2.next()){ //iterating results table
+                        System.out.println("At url "+rs2.getString(3)+" keyword: "+rs2.getString(2)+ " found "+rs2.getInt(4)+" times, with impression "+rs2.getString(5));
+                    }
+                    System.out.println();
+
+                    //todo here select from results, from res(for this time-searchID) in how many urls keywords exist and which ures
+                    // for instance keyword aek exists at 3/5 url
+                    // kw aek:  www.url1......
+
+
+                }
+                System.out.println("Date: " + rs.getString(1) + " KW: " + rs.getString(2) + " timesFound: " + rs.getString(3));
+
+                dates.add(rs.getString(1));
+                change = rs.getString(1);
+
+            }
+            Statement st2 = c.createStatement();
+            ResultSet rs2 = st2.executeQuery("select * from results where mdate = '"+change+"'");
+            while(rs2.next()){ //iterating results table
+                System.out.println("At url "+rs2.getString(3)+" keyword: "+rs2.getString(2)+ " found "+rs2.getInt(4)+" times, with impression "+rs2.getString(5));
+            }
+            System.out.println();
+
+
+
+            //st.executeUpdate();
+            c.commit();
+            c.close();
+            st.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+
+
     }
 
 //    @Override
@@ -330,7 +394,6 @@ public class Result implements ResultDAO {
             }
         }
         System.out.println("\n\n**** END OF FINAL RESULTS");
-
 
         System.out.println("\n\nStore to DB\n\n");
 

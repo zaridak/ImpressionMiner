@@ -1,0 +1,22 @@
+create table results
+(
+    mdate      varchar(64) not null,
+    keyword    varchar(64) not null,
+    url        varchar(64) not null,
+    timesfound integer,
+    impression varchar(10),
+    constraint pk
+        primary key (mdate, keyword, url),
+    constraint results_mdate_fkey
+        foreign key (mdate, keyword) references keywords
+);
+
+
+create table keywords
+(
+    mdate           varchar(64) not null,
+    keyword         varchar(64) not null,
+    totaltimesfound integer,
+    constraint keywords_pkey
+        primary key (mdate, keyword)
+);

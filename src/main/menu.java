@@ -84,6 +84,7 @@ public class menu {
     private void menu() {
         int userInput = 0;
         Scanner go = new Scanner(System.in);
+        Result res2 =null;
         do {
             System.out.println("Press 1 to edit target URLs");
             System.out.println("Press 2 to Εnter search terms");
@@ -123,6 +124,9 @@ public class menu {
                         res.printResults(startMine.getMyThreads());
                         res.saveResultsInDB(res.getDbBufferString().toString());
                         System.out.println("TO STRING EINAI \n" + res.getDbBufferString().toString());
+                        res.loadAllFromDB();
+                        //res2 = new Result(res);
+
                     }
                 }
             }
@@ -130,6 +134,7 @@ public class menu {
                 go.close();
                 System.exit(0);
             }
+
         } while (userInput != 4);
     }
 
