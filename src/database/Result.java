@@ -20,7 +20,14 @@ public class Result implements ResultDAO {
     private ArrayList<Impression> allImpressions;
     private String keyWordPerUrl = "";
     private StringBuffer dbBufferString = null;
-
+    private String formattedDate ="";
+    //todo send them to connection class
+    Connection c = null;
+    Statement stmt = null;
+    final String url = "jdbc:postgresql://localhost/postgres";
+    final String user = "postgres";
+    final String password = "root";
+    //todo end of  connection class
     public StringBuffer getDbBufferString(){return this.dbBufferString;}
     // PRINT REQUEST 1
     // Sunolikos arithmos emfanisewn kathe keyword se OLA TA URL, ARA KEYWORD -> TIMES FOUND TOTAL
@@ -52,6 +59,9 @@ public class Result implements ResultDAO {
         kwTotalOccurrences = new LinkedHashMap<>();
         kwUrlImpression = new LinkedHashMap<>();
         this.dbBufferString = new StringBuffer();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        this.formattedDate = dateFormat.format(date);
     }
 
     public void addImpression(Impression toAdd){this.allImpressions.add(toAdd);}
@@ -73,36 +83,36 @@ public class Result implements ResultDAO {
         return this.allThreads;
     }
 
-    @Override
+//    @Override
+//    public void saveResultsInDB(String resultString) {
+//        //TODO STORE results in DB after calculation get singleResults from each thread
+//        Connection c = null;
+//        Statement stmt = null;
+//        final String url = "jdbc:postgresql://localhost/postgres";
+//        try {
+//            c = DriverManager.getConnection(url);
+//            c.setAutoCommit(false);
+//            System.out.println("Opened database successfully");
+//
+//            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//            Date date = new Date();
+//            String formatted = dateFormat.format(date);
+//
+//            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impressions,timedate) VALUES (?, ?)");
+//            st.setString(1, resultString);
+//            st.setString(2, formatted);
+//            st.executeUpdate();
+//            c.commit();
+//            c.close();
+//        } catch (Exception e) {
+//            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+//        }
+//    }
+
+    @Override //TODO ZARIDAK CONNECTION STRING
     public void saveResultsInDB(String resultString) {
         //TODO STORE results in DB after calculation get singleResults from each thread
-        Connection c = null;
-        Statement stmt = null;
-        final String url = "jdbc:postgresql://localhost/postgres";
-        try {
-            c = DriverManager.getConnection(url);
-            c.setAutoCommit(false);
-            System.out.println("Opened database successfully");
-
-            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-            Date date = new Date();
-            String formatted = dateFormat.format(date);
-
-            PreparedStatement st = c.prepareStatement("INSERT INTO stats (impressions,timedate) VALUES (?, ?)");
-            st.setString(1, resultString);
-            st.setString(2, formatted);
-            st.executeUpdate();
-            c.commit();
-            c.close();
-        } catch (Exception e) {
-            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
-        }
-    }
-                    /*  //TODO ZARIDAK CONNECTION STRING
-    @Override
-    public void saveResultsInDB(String resultString) {
-        //TODO STORE results in DB after calculation get singleResults from each thread
-        Connection c = null;
+      /*  Connection c = null;
         Statement stmt = null;
         final String url = "jdbc:postgresql://localhost/postgres";
         final String user = "postgres";
@@ -124,8 +134,124 @@ public class Result implements ResultDAO {
             c.close();
         } catch (Exception e) {
             System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+        }*/
+
+        for (Map.Entry<String, Integer> lol : kwTotalOccurrences.entrySet()) {
+           // System.out.println("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times");
+            try {
+                c = DriverManager.getConnection(url, user, password);
+                c.setAutoCommit(false);
+
+                PreparedStatement st = c.prepareStatement("INSERT INTO keywords (mdate, keyword, totaltimesfound) values (?,?,?)");
+                st.setString(1, this.formattedDate);
+                st.setString(2, lol.getKey());
+                st.setInt(3, lol.getValue());
+                st.executeUpdate();
+                c.commit();
+                c.close();
+                st.close();
+            } catch (Exception e) {
+                System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            }
         }
-    } */
+
+        for (myThread tmpThread : this.allThreads) {
+            LinkedHashMap<String, LinkedHashMap<String, Integer>> tmpSingleResult = tmpThread.getSingleResults();
+            LinkedHashMap<String, String> tmpImpression = getImpressionMapByID(tmpThread.getURl());
+            kwUrlImpression.put(tmpThread.getURl(), tmpImpression);
+
+            int kwtmpFoundTimes = 0;
+            String kwTmpName = "";
+
+            // this.URL, < keyWord,timesFound>
+            for (Map.Entry<String, LinkedHashMap<String, Integer>> tmp : tmpSingleResult.entrySet()) {
+                if (tmp != null) {
+                    //this.keyWordPerUrl += "At url " + tmp.getKey() + " found keywords: \n";
+
+                    if (!tmp.getValue().isEmpty()) {
+                        for (Map.Entry<String, Integer> run : tmp.getValue().entrySet()) {
+                            kwTmpName = run.getKey();
+                            //  System.out.println("Keyword ->"+run.getKey()+"<- Found "+run.getValue()+" Times.");
+                          //  this.keyWordPerUrl += "Keyword ->" + run.getKey() + "<- Found " + run.getValue() + " Times. \n";
+                            try {
+                                c = DriverManager.getConnection(url, user, password);
+                                c.setAutoCommit(false);
+
+                                PreparedStatement st = c.prepareStatement("INSERT INTO results (mdate, keyword, url, timesfound, impression)" +
+                                        " VALUES (?,?,?,?,?)");
+                                st.setString(1, this.formattedDate);
+                                st.setString(2, run.getKey());
+                                st.setString(3,tmp.getKey());
+                                st.setInt(4,run.getValue());
+                                st.setString(5,"-");
+                                st.executeUpdate();
+                                c.commit();
+                                c.close();
+                            } catch (Exception e) {
+                                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+                            }
+                            kwtmpFoundTimes += run.getValue();
+                            //    System.out.println("kanw add map "+run.getKey()+" "+run.getValue());
+//                            if (run.getValue() > 0) { //if exists
+//                                if (!kwTotalOccurrences.containsKey(run.getKey())) {  //if not added create new entry
+//                                    kwTotalOccurrences.put(run.getKey(), run.getValue());
+//                                } else { // if already added update current count Variable (getValue)
+//                                    kwTotalOccurrences.replace(run.getKey(), run.getValue() + kwTotalOccurrences.get(run.getKey()));
+//                                }
+//                            }
+                        }
+                    }
+                }
+                //     System.out.println("For gia url to kwtmpFoundTimes = "+kwtmpFoundTimes);
+            }
+            //System.out.println("And the Impressions Are: ****");
+
+            for (Map.Entry<String, LinkedHashMap<String, String>> tmp : this.kwUrlImpression.entrySet()) {
+                if (tmp.getValue().isEmpty()) {
+                    continue;
+                    //System.out.println("For url "+tmp.getKey()+" No impressions exist: ");
+                } else {
+                    //System.out.println("For url " + tmp.getKey() + " Impressions are: ");
+
+                    for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
+                        if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty() && !run.getValue().isEmpty()) {
+                            //System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
+
+                            try {
+                                c = DriverManager.getConnection(url, user, password);
+                                c.setAutoCommit(false);
+
+                                PreparedStatement st = c.prepareStatement("update results set impression = ? where url = ? and keyword = ? and mdate = ?");
+                                st.setString(1, run.getValue());
+                                st.setString(2, tmp.getKey());
+                                st.setString(3,run.getKey());
+                                st.setString(4,this.formattedDate);
+                                st.executeUpdate();
+                                c.commit();
+                                c.close();
+                            } catch (Exception e) {
+                                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+                            }
+
+
+
+                        }
+                    }
+                }
+            }
+
+
+            if (!tmpImpression.isEmpty()) {
+                tmpImpression.forEach((key, value) -> {
+                  //  System.out.println("For keyWord ->" + key + "<- Impression is " + value);
+                });
+            } else {
+                //System.out.println("Nothing to show");
+            }
+        }
+
+
+    }
 
     /*
         //keyWord -> totalTimes
@@ -154,7 +280,6 @@ public class Result implements ResultDAO {
             // this.URL, < keyWord,timesFound>
             for (Map.Entry<String, LinkedHashMap<String, Integer>> tmp : tmpSingleResult.entrySet()) {
                 if (tmp != null) {
-                    dbBufferString.append("At url " + tmp.getKey() + "  found keywords: \n");
                     System.out.println("At url " + tmp.getKey() + "  found keywords:");
                     this.keyWordPerUrl += "At url " + tmp.getKey() + " found keywords: \n";
 
@@ -163,6 +288,23 @@ public class Result implements ResultDAO {
                             kwTmpName = run.getKey();
                             //  System.out.println("Keyword ->"+run.getKey()+"<- Found "+run.getValue()+" Times.");
                             this.keyWordPerUrl += "Keyword ->" + run.getKey() + "<- Found " + run.getValue() + " Times. \n";
+                         /*   try {
+                                c = DriverManager.getConnection(url, user, password);
+                                c.setAutoCommit(false);
+
+                                PreparedStatement st = c.prepareStatement("INSERT INTO results (mdate, keyword, url, timesfound, impression)" +
+                                        " VALUES (?,?,?,?,?)");
+                                st.setString(1, this.formattedDate);
+                                st.setString(2, run.getKey());
+                                st.setString(3,tmp.getKey());
+                                st.setInt(4,run.getValue());
+                                st.setString(5,"lola");
+                                st.executeUpdate();
+                                c.commit();
+                                c.close();
+                            } catch (Exception e) {
+                                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+                            }*/
                             kwtmpFoundTimes += run.getValue();
                             //    System.out.println("kanw add map "+run.getKey()+" "+run.getValue());
                             if (run.getValue() > 0) { //if exists
@@ -187,19 +329,39 @@ public class Result implements ResultDAO {
                 System.out.println("Nothing to show");
             }
         }
-
         System.out.println("\n\n**** END OF FINAL RESULTS");
+
+
         System.out.println("\n\nStore to DB\n\n");
 
         for (Map.Entry<String, Integer> lol : kwTotalOccurrences.entrySet()) {
             System.out.println("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times");
-            dbBufferString.append("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times \n");
+          /*  try {
+                c = DriverManager.getConnection(url, user, password);
+                c.setAutoCommit(false);
+                System.out.println("Opened database successfully");
 
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                String formatted = dateFormat.format(date);
+
+                PreparedStatement st = c.prepareStatement("INSERT INTO keywords (mdate, keyword, totaltimesfound) values (?,?,?)");
+                st.setString(1, this.formattedDate);
+                st.setString(2, lol.getKey());
+                st.setInt(3,lol.getValue());
+                st.executeUpdate();
+                c.commit();
+                c.close();
+                st.close();
+            } catch (Exception e) {
+                System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+            }*/
+            dbBufferString.append("Keyword " + lol.getKey() + " Found " + lol.getValue() + " times \n");
         }
 
         //System.out.println("keyword, url -> times found ");
         System.out.println(this.keyWordPerUrl);
-
+        dbBufferString.append(this.keyWordPerUrl);
         for (Map.Entry<String, LinkedHashMap<String, Integer>> tmp : whichUrlAndCount.entrySet()) {
             for (Map.Entry<String, Integer> run : tmp.getValue().entrySet()) {
                 System.out.println("To url " + tmp.getKey() + " contains " + run.getKey() + " " + tmp.getValue() + " times");
@@ -235,8 +397,8 @@ public class Result implements ResultDAO {
         //kwURLName.forEach((k, v) -> System.out.println("keyword " + k + " found at url:  " + v));
         for (Map.Entry<String, String> run : kwURLName.entrySet()) {
             if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty()) {
-                System.out.println("keyword " + run.getKey() + " found at url:  " + run.getKey());
-                dbBufferString.append("keyword " + run.getKey() + " found at url:  " + run.getKey()+ " \n");
+                System.out.println("keyword " + run.getKey() + " found at url:  " + run.getValue());
+                dbBufferString.append("keyword " + run.getKey() + " found at url:  " + run.getValue()+ " \n");
             }
         }
         System.out.println("\n\n****Impression to DB****\n");
@@ -246,7 +408,7 @@ public class Result implements ResultDAO {
                 //System.out.println("For url "+tmp.getKey()+" No impressions exist: ");
             } else {
                 System.out.println("For url " + tmp.getKey() + " Impressions are: ");
-
+                dbBufferString.append("For url " + tmp.getKey() + " Impressions are: \n");
 //                tmp.getValue().forEach((k,v)->{
 //                    StringBuffer aek = null;
 //                    aek.append("Keyword: " + k + " Impression is: " + v);
@@ -255,7 +417,7 @@ public class Result implements ResultDAO {
                 for (Map.Entry<String, String> run : tmp.getValue().entrySet()) {
                     if(run.getKey()!=null && run.getValue()!=null && !run.getKey().isEmpty() && !run.getValue().isEmpty()) {
                         System.out.println("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
-                        dbBufferString.append("Keyword: " + run.getKey() + " Impression is: " + run.getValue());
+                        dbBufferString.append("Keyword: " + run.getKey() + " Impression is: " + run.getValue()+"\n");
                     }
                 }
             }
