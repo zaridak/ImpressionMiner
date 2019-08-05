@@ -1,3 +1,15 @@
+table keywords:
+
+mdate |  keyword | timesfound
+primary key( mdate , keyword)
+
+table results:
+
+mdate | keyword | url | timesfound | impression
+Primary key  ( mdate, keyword, url)
+foreign key  ( mdate, keyword)  from table keyword
+
+
 create table results
 (
     mdate      varchar(64) not null,

@@ -21,6 +21,7 @@ public class Result implements ResultDAO {
     private String formattedDate ="";
     //todo send them to connection class
     Connection c = null;
+    Connection conn = null;
     Statement stmt = null;
     final String url = "jdbc:postgresql://localhost/postgres";
     final String user = "postgres";
@@ -42,21 +43,6 @@ public class Result implements ResultDAO {
     //kathe keywrod, se posa URL uphrxe, ara  keyword -> arithmos URL pou ton perieixan
     //PRINT REQUEST 3
     //Gia kathe keyword, pososto emfanishs se URL  px to keyword: lola uphrxe se 5 apo 10 URL TODO MERGE WITH request 2
-
-    public Result(Result res){
-        super();
-        this.urlsSearched = new ArrayList<>(res.urlsSearched);
-        keyWords = new ArrayList<>();
-        this.allThreads = new ArrayList<>(res.allThreads);
-        this.allImpressions = new ArrayList<>(res.allImpressions);
-        Impression.loadImpressionWords();
-        whichUrlAndCount = new LinkedHashMap<>(res.whichUrlAndCount);
-        kwTotalOccurrences = new LinkedHashMap<>(res.kwTotalOccurrences);
-        kwUrlImpression = new LinkedHashMap<>(res.kwUrlImpression);
-
-
-    }
-
 
     public Result(ArrayList<myThread> all, ArrayList<String> keyWords, ArrayList<String> searchedURLs){
         this.urlsSearched = new ArrayList<>();
@@ -98,17 +84,22 @@ public class Result implements ResultDAO {
     public void loadAllFromDB() {
 
         try {
-            c = DriverManager.getConnection(url, user, password);
-            c.setAutoCommit(false);
-
-            Statement st = c.createStatement();
+            conn = DBConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
+            Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * from keywords");
-            LinkedHashSet<String> dates = new LinkedHashSet<>();
-            String change ="";
+            String change =""; //used to track when we reach the last index of the DB
             while (rs.next()) {
 
                 if(!change.equals(rs.getString(1))){
-                    Statement st2 = c.createStatement();
+                    //printing at how many url the search took place
+                    Statement stfurl = conn.createStatement();//distinct wont count duplicates
+                    ResultSet totalurl = stfurl.executeQuery("select count (distinct url) as totalURL from results  where mdate ='"+change+"'");
+                    if(totalurl.next() ){}
+                    int count = totalurl.getInt("totalURL");
+                    System.out.println("Search took place at "+count+" urls");
+
+                    Statement st2 = conn.createStatement();
                     ResultSet rs2 = st2.executeQuery("select * from results where mdate = '"+change+"'");
                     while(rs2.next()){ //iterating results table
                         System.out.println("At url "+rs2.getString(3)+" keyword: "+rs2.getString(2)+ " found "+rs2.getInt(4)+" times, with impression "+rs2.getString(5));
@@ -119,31 +110,34 @@ public class Result implements ResultDAO {
                     // for instance keyword aek exists at 3/5 url
                     // kw aek:  www.url1......
 
-
                 }
-                System.out.println("Date: " + rs.getString(1) + " KW: " + rs.getString(2) + " timesFound: " + rs.getString(3));
-
-                dates.add(rs.getString(1));
+                System.out.println("Date: " + rs.getString(1) + " KeyWord: " + rs.getString(2) + " timesFound: " + rs.getString(3));
                 change = rs.getString(1);
 
-            }
-            Statement st2 = c.createStatement();
+
+            }// after while, printing the last index of the DB
+
+            //printing the number of url the search took place for the last search in DB
+            Statement stfurl = conn.createStatement();//distinct wont count duplicates
+            ResultSet totalurl = stfurl.executeQuery("select count (distinct url) as totalURL from results  where mdate ='"+change+"'");
+            if(totalurl.next() ){}
+            int count = totalurl.getInt("totalURL");
+            System.out.println("Search took place at "+count+" urls");
+
+            Statement st2 = conn.createStatement();
             ResultSet rs2 = st2.executeQuery("select * from results where mdate = '"+change+"'");
             while(rs2.next()){ //iterating results table
                 System.out.println("At url "+rs2.getString(3)+" keyword: "+rs2.getString(2)+ " found "+rs2.getInt(4)+" times, with impression "+rs2.getString(5));
             }
             System.out.println();
 
-
-
-            //st.executeUpdate();
-            c.commit();
-            c.close();
+            conn.commit();
+            conn.close();
             st.close();
+            st2.close();
         } catch (Exception e) {
-            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            System.err.println(e.getClass().getName() + ": " + e.getMessage()+" at loadAllFromDB");
         }
-
 
     }
 
