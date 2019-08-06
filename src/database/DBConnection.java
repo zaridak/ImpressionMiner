@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DBConnection {
+class DBConnection { //package private class
 
     private static DBConnection instance;
     private Connection connection;
@@ -21,10 +21,12 @@ public class DBConnection {
             System.out.println("Database Connection Creation Failed : " + ex.getMessage());
         }
     }
-
-    public Connection getConnection() { return this.connection; }
-
-    public static DBConnection getInstance() throws SQLException {
+    //package private method
+    Connection getConnection() {
+        return this.connection;
+    }
+    //package private method
+    static DBConnection getInstance() throws SQLException {
         if (instance == null) {
             instance = new DBConnection();
         } else if (instance.getConnection().isClosed()) {

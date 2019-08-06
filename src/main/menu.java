@@ -84,12 +84,12 @@ public class menu {
     private void menu() {
         int userInput = 0;
         Scanner go = new Scanner(System.in);
-        Result res2 =null;
         do {
             System.out.println("Press 1 to edit target URLs");
             System.out.println("Press 2 to Εnter search terms");
             System.out.println("Press 3 to Ιnit Mining");
-            System.out.println("Press 4 to Εxit");
+            System.out.println("Press 4 to load all data from DataBase");
+            System.out.println("Press 5 to Εxit");
 
             userInput = posNum(go);  // return in else if repeats menu
             if (userInput == 1) {
@@ -112,30 +112,27 @@ public class menu {
                         Mining startMine = new Mining(this.urls.getTargetURLs(),this.searchTerms);
                         startMine.start();
                         startMine.joinAll();
-                        //public Result(ArrayList<myThread> all, ArrayList<String> keyWords, ArrayList<String> searchedURLs){
                         Result res = new Result(startMine.getMyThreads(),this.searchTerms,this.listOfURL);
-                        // for to iterate all threads
-//                      for(myThread tmp : startMine.getMyThreads()){res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno())); }
                         // run all threads and create a new Impression from them -> add it to res
                         startMine.getMyThreads().forEach( (tmp)->res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno())));
-
-                        //  putMeInAClass(startMine.getMyThreads());
-                        // todo res.saveResultsInDB(startMine.getMyThreads());+ res.printResults(startmine.getMythreads
                         res.printResults(startMine.getMyThreads());
                         res.saveResultsInDB(res.getDbBufferString().toString());
-                        System.out.println("TO STRING EINAI \n" + res.getDbBufferString().toString());
-                        res.loadAllFromDB();
-                        //res2 = new Result(res);
-
+                        res.closeDBConnection();
+                        //System.out.println("TO STRING EINAI \n" + res.getDbBufferString().toString());
                     }
                 }
             }
-            else if (userInput == 4) {
+            else if(userInput == 4){
+                Result res2 = new Result();
+                res2.loadAllFromDB();
+            }
+
+            else if (userInput == 5) {
                 go.close();
                 System.exit(0);
             }
 
-        } while (userInput != 4);
+        } while (userInput != 5);
     }
 
     public void start(){
@@ -152,25 +149,11 @@ public class menu {
         }
     }
 
-    public void printSR(){ //    git 21
+    private void printSR(){ //    git 21
         if(this.searchTerms.size()>0)
             removeSpaces();
         System.out.println("Print SR");
         for(String lol:this.searchTerms) System.out.println("*"+lol+"*");
     }
 
-//    public void putMeInAClass(ArrayList<myThread> printMe){   //same code myThread live 75
-//        LinkedHashMap<String, LinkedHashMap<String,Integer>> wtf;
-//        for(myThread tmp : printMe){
-//            wtf = tmp.getSingleResults();
-//            for(Map.Entry<String, LinkedHashMap<String, Integer>> run : wtf.entrySet()){
-//                if(tmp!=null){
-//                    System.out.println("At url "+run.getKey()+" Search Results: ");
-//                    if(!run.getValue().isEmpty()){
-//                        run.getValue().forEach((k,v)-> System.out.println("Keyword: ->"+k+"<- Found: "+v+" Times."));
-//                    }
-//                }
-//            }
-//        }
-//    }
 }

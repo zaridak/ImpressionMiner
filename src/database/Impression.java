@@ -24,17 +24,17 @@ public class Impression {
         this.setImpression();// TODO ADD IT TO GET IMPRESSION FFS
     }
 
-    public String getURL() {
+    String getURL() {
         return this.URL;
     }
 
-    public LinkedHashMap<String,String> getImpressionMap(){
+    LinkedHashMap<String,String> getImpressionMap(){
         return this.ImpressionMap;
     }
 
     private void setImpression() {
         String delimiter = "\t\n\r\f ";
-        this.text = text.replaceAll("[\\-\\[\\]\\/\\+\\.(){}!`~;'<_=>?\\^:,]", " ").replaceAll(" +", " ").trim();
+        this.text = text.replaceAll("[\\-\\[\\]/+\\.(){}!`~;'<_=>?\\^:,]", " ").replaceAll(" +", " ").trim();
         StringTokenizer tokenizer = new StringTokenizer(text, delimiter);
 
 //        while (tokenizer.hasMoreTokens()) {
@@ -97,26 +97,6 @@ public class Impression {
 
     public void printImpressionMap() {
         ImpressionMap.forEach((key, value) -> { System.out.println("For keyWord ->"+key+"<- Impression is "+value); });
-    }
-
-    public String getImpressionUrlKeyWord(String url, String keyword) {
-        //iterate the map when find url, iterate the getValue
-        //when find keyword get the getValue which is the impression.... ffs
-//        int score = 0;
-//        Pattern pattern;
-//        Matcher matcher;
-//        pattern = Pattern.compile(keyword);
-        //LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression
-//        ImpressionMap.forEach((key, value) -> {
-//            System.out.println("Gia to keyWord "+key+" impression is "+value);
-//        });
-
-//        for(Map.Entry<String,String> tmp : ImpressionMap.entrySet()){
-//            if(tmp!=null){
-//                System.out.println("Gia to keyWord "+tmp.getKey()+" impression is "+tmp.getValue());
-//            }
-//        }
-        return "";
     }
 
     public static void loadImpressionWords() {

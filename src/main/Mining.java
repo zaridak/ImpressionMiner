@@ -10,7 +10,7 @@ public class Mining {
     private ArrayList<myThread> myThreads;
 
     //numofURL = numOfThreads
-    public Mining(ArrayList<String> allURLs, ArrayList<String> AllKeyWords){
+    Mining(ArrayList<String> allURLs, ArrayList<String> AllKeyWords){
         this.allURLs = allURLs;
         this.allKeyWords = AllKeyWords;
         this.myThreads = new ArrayList<>();
@@ -18,9 +18,9 @@ public class Mining {
         //for (i=0;  i < allURLs.size()
     }
 
-    public ArrayList<myThread> getMyThreads(){return this.myThreads;}
+    ArrayList<myThread> getMyThreads(){return this.myThreads;}
 
-    public void start() {
+    void start() {
         if(!myThreads.isEmpty()) myThreads.forEach(tmp->tmp.start());
     }
 
@@ -31,7 +31,7 @@ public class Mining {
         if(!myThreads.isEmpty()) myThreads.forEach(tmp->tmp.resume());
     }
 
-    public void joinAll(){
+    void joinAll(){
         if(!myThreads.isEmpty()){
             myThreads.forEach(tmp->{
                 try {

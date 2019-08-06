@@ -24,15 +24,15 @@ public class targetURL {
         return this.urls.size();
     }
 
-    public boolean isFull() {
+    private boolean isFull() {
         return this.urls.size() == 10;
     }
 
-    public boolean isEmpty() {
+    private boolean isEmpty() {
         return this.urls.isEmpty();
     }
 
-    public boolean isValidURL(String urlStr) {
+    private boolean isValidURL(String urlStr) {
         try {
             URL url = new URL(urlStr);
             return true;
@@ -41,7 +41,7 @@ public class targetURL {
         }
     }
 
-    public boolean addURL(String url) {
+    private boolean addURL(String url) {
         if (isFull() || !isValidURL(url))
             return false;
         else
@@ -49,7 +49,7 @@ public class targetURL {
         return true;
     }
 
-    public boolean deleteURL(int toDelete) {
+    private boolean deleteURL(int toDelete) {
         if (isEmpty() || (toDelete >= this.urls.size()))
             return false;
         else {
@@ -58,7 +58,7 @@ public class targetURL {
         }
     }
 
-    public void display() {
+    private void display() {
         var i = 0;
         for (String tmp : this.urls)
             System.out.println(i++ + ") " + tmp);
