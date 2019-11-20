@@ -15,7 +15,6 @@ public class Mining {
         this.allKeyWords = AllKeyWords;
         this.myThreads = new ArrayList<>();
         IntStream.range(0, allURLs.size()).forEachOrdered(i -> myThreads.add(new myThread(String.valueOf(i), allURLs.get(i), this.allKeyWords)));
-        //for (i=0;  i < allURLs.size()
     }
 
     ArrayList<myThread> getMyThreads(){return this.myThreads;}
@@ -25,8 +24,9 @@ public class Mining {
     }
 
     public void pause() { //System.out.println("Kalw pause");
-        if(!myThreads.isEmpty()) myThreads.forEach(tmp->tmp.suspend());
+        if(!myThreads.isEmpty()) myThreads.forEach(myThread::suspend);
     }
+
     public void resume(){ //System.out.println("Kalw resume");
         if(!myThreads.isEmpty()) myThreads.forEach(tmp->tmp.resume());
     }
@@ -37,7 +37,7 @@ public class Mining {
                 try {
                     tmp.myJoin();
                 }catch (Exception ex){
-                    System.out.println("Exception throwed at Mining join "+ex.getMessage());
+                    System.out.println("Exception trowed at Mining join "+ex.getMessage());
                 }});
         }
     }

@@ -30,12 +30,12 @@ public class Result implements ResultDAO {
     }
 
     //keyWord -> totalTimes
-    LinkedHashMap<String, Integer> kwTotalOccurrences;
+    private LinkedHashMap<String, Integer> kwTotalOccurrences;
     // keyWord,  URL -> timesFound
-    LinkedHashMap<String, LinkedHashMap<String, Integer>> whichUrlAndCount;
+    private LinkedHashMap<String, LinkedHashMap<String, Integer>> whichUrlAndCount;
 
     //keyword, Url ->Impression  or   URL,  keyWord impression
-    LinkedHashMap<String, LinkedHashMap<String, String>> kwUrlImpression;
+    private LinkedHashMap<String, LinkedHashMap<String, String>> kwUrlImpression;
 
     public Result(ArrayList<myThread> all, ArrayList<String> keyWords, ArrayList<String> searchedURLs) {
         this.urlsSearched = new ArrayList<>();
@@ -101,9 +101,9 @@ public class Result implements ResultDAO {
         return this.allThreads;
     }
 
+
     @Override
     public void loadAllFromDB() {
-
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery("SELECT * from keywords");
@@ -153,7 +153,8 @@ public class Result implements ResultDAO {
             //printing the number of url the search took place for the last search in DB
             Statement stfurl = conn.createStatement();//distinct won't count duplicates
             ResultSet totalurl = stfurl.executeQuery("select count (distinct url) as totalURL from results  where mdate ='" + change + "'");
-            if (totalurl.next()) { }
+            if (totalurl.next()) {
+            }
             int count = totalurl.getInt("totalURL");
             System.out.println("Search took place at " + count + " urls");
 
@@ -216,6 +217,18 @@ public class Result implements ResultDAO {
 //            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 //        }
 //    }
+    
+    public void deleteAllDB() {
+        try {
+            Statement st = conn.createStatement();
+            int rs = st.executeUpdate("TRUNCATE keywords, results, stats");
+            System.out.println("Deleted");
+
+        }catch (Exception ex){
+            System.out.println("Ex at deleting db "+ex.getMessage());
+            this.closeDBConnection();
+        }
+    }
 
     @Override //TODO ZARIDAK CONNECTION STRING
     public void saveResultsInDB(String resultString) {
@@ -373,7 +386,7 @@ public class Result implements ResultDAO {
             // this.URL, < keyWord,timesFound>
             for (Map.Entry<String, LinkedHashMap<String, Integer>> tmp : tmpSingleResult.entrySet()) {
                 if (tmp != null) {
-                    System.out.println("At url " + tmp.getKey() + "  found keywords:");
+                    //System.out.println("At url " + tmp.getKey() + "  found keywords:");
                     this.keyWordPerUrl += "At url " + tmp.getKey() + " found keywords: \n";
 
                     if (!tmp.getValue().isEmpty()) {
@@ -432,7 +445,7 @@ public class Result implements ResultDAO {
 
         for (String keyword : keyWords) {
             for (myThread thread : allThreads) {
-                if (thread.containsKeyWord(keyword)) {
+                if (thread!=null && thread.containsKeyWord(keyword)) {
                     if (kwURLNumber.containsKey(keyword)) // an to periexei  hdh
                         kwURLNumber.replace(keyword, kwURLNumber.get(keyword) + 1);
                     else kwURLNumber.put(keyword, 1);
@@ -482,4 +495,5 @@ public class Result implements ResultDAO {
         //saveResultsInDB(aek.toString());
         System.out.println("\n\n");
     }
+
 }

@@ -9,6 +9,15 @@ import java.util.Scanner;
 
 public class menu {
 
+    private static volatile boolean wPressed = false;
+    public static boolean isWPressed() {
+        System.out.println("Kalestika ");
+        synchronized (menu.class) {
+            System.out.println("epistrefw "+wPressed);
+            return wPressed;
+        }
+    }
+
     private targetURL urls ;
     private ArrayList<String> searchTerms; //keywords
     private ArrayList<String> listOfURL;
@@ -73,15 +82,15 @@ public class menu {
     }
 
     private void getSearchWords(Scanner go){
-        int numberOfSearchTerms=0;
+        int numberOfSearchTerms = 0;
         System.out.println("Enter the number of search terms");
         numberOfSearchTerms = posNum(go);
-        System.out.println("Enter "+numberOfSearchTerms+" search terms one by one, Enter seperated");
-        for(int i =0;i<numberOfSearchTerms+1;i++)
+        System.out.println("Enter "+numberOfSearchTerms+" search terms one by one, Enter separated");
+        for(int i = 0;i<numberOfSearchTerms+1;i++)
             this.searchTerms.add((String)go.nextLine());
     }
 
-    private void menu() {
+    private void menu() throws InterruptedException {
         int userInput = 0;
         Scanner go = new Scanner(System.in);
         do {
@@ -90,8 +99,12 @@ public class menu {
             System.out.println("Press 3 to Ιnit Mining");
             System.out.println("Press 4 to load all data from DataBase");
             System.out.println("Press 5 to Εxit");
+            System.out.println("Press 6 to Delete all Data from DataBase");
+
+            Mining startMine = null;
 
             userInput = posNum(go);  // return in else if repeats menu
+
             if (userInput == 1) {
                 try {
                     this.urls.handleTheUrl();
@@ -109,15 +122,17 @@ public class menu {
                 else{
                     listOfURL = this.urls.getTargetURLs();
                     if(listOfURL.size() > 0){ //null check
-                        Mining startMine = new Mining(this.urls.getTargetURLs(),this.searchTerms);
+                        startMine = new Mining(this.urls.getTargetURLs(),this.searchTerms);
                         startMine.start();
                         startMine.joinAll();
                         Result res = new Result(startMine.getMyThreads(),this.searchTerms,this.listOfURL);
                         // run all threads and create a new Impression from them -> add it to res
                         startMine.getMyThreads().forEach( (tmp)->res.addImpression(new Impression(tmp.getURl(),this.searchTerms,tmp.getKeimeno())));
-                        res.printResults(startMine.getMyThreads());
-                        res.saveResultsInDB(res.getDbBufferString().toString());
-                        res.closeDBConnection();
+                        if(res!=null){
+                            res.printResults(startMine.getMyThreads());
+                            res.saveResultsInDB(res.getDbBufferString().toString());
+                            res.closeDBConnection();
+                        }
                         //System.out.println("TO STRING EINAI \n" + res.getDbBufferString().toString());
                     }
                 }
@@ -126,17 +141,25 @@ public class menu {
                 Result res2 = new Result();
                 res2.loadAllFromDB();
             }
+            else if(userInput == 6){
+                System.out.println("kalw delte");
+                Result res2 = new Result();
+                res2.deleteAllDB();
+            }
 
             else if (userInput == 5) {
                 go.close();
                 System.exit(0);
             }
-
         } while (userInput != 5);
     }
 
     public void start(){
-        this.menu();
+        try{
+            this.menu();
+        }catch (Exception ex){
+            System.out.println("enter catch");
+        }
     }
 
     private void removeSpaces(){

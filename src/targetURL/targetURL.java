@@ -16,6 +16,8 @@ public class targetURL {
         urls.add("https://www.insider.gr/");
         urls.add("https://www.news247.gr/");
         urls.add("https://www.cnn.gr/");
+//        urls.add("https://www.bing.com/news");
+//        urls.add("https://www.tanea.gr/");
     }
 
     public ArrayList<String> getTargetURLs(){return this.urls;}
@@ -72,6 +74,7 @@ public class targetURL {
         System.out.println("Press 4 to return to main");
     }
 
+    // Function controlling the correct behavior when the user adds or deletes urls
     public void handleTheUrl() throws Exception {
         this.display();
         int selected = 0;

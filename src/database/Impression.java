@@ -4,9 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.*;
 
+// kathe thread exei ena impression, pou to kathena mesa krataei ena map URL-keyword kai ejagei impression
 public class Impression {
 
-    LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression for one thread/url
+    private LinkedHashMap<String, String> ImpressionMap; //  keyword -> impression for one thread/url
 
     private String URL; // ID
     private ArrayList<String> keywords;
@@ -24,11 +25,9 @@ public class Impression {
         this.setImpression();// TODO ADD IT TO GET IMPRESSION FFS
     }
 
-    String getURL() {
-        return this.URL;
-    }
+    String getURL() { return this.URL; }
 
-    LinkedHashMap<String,String> getImpressionMap(){
+    LinkedHashMap<String, String> getImpressionMap() {
         return this.ImpressionMap;
     }
 
@@ -47,46 +46,46 @@ public class Impression {
         //positionOfKeyword contains the index of a keyword found each time at the text.
         ArrayList<Integer> positionOfKeyword = new ArrayList<>();
 
-        System.out.println("Impression for Thread with URL "+this.URL);
+        System.out.println("Impression for Thread with URL " + this.URL);
+
         for (String keyWord : this.keywords) { //for each Keyword will search in text
 
-            if(text.contains(keyWord)){ // if keyWord exists in text
-                int positiveScore =0, negativeScore=0;
-                for(int pos = 0; pos < textSplited.size();pos++){  // for each word of the text
-                    if(textSplited.get(pos).equals(keyWord))
+            if (text.contains(keyWord)) { // if keyWord exists in text
+                int positiveScore = 0, negativeScore = 0;
+                for (int pos = 0; pos < textSplited.size(); pos++) {  // for each word of the text
+                    if (textSplited.get(pos).equals(keyWord))
                         positionOfKeyword.add(pos);//if keyword exists, save the index of it
                 } // position mapping for
-                    //System.out.println("To keyword "+keyWord+" exists at");
 
                 //iterate the array holding position of keywords in text
-                for(int i=0;i<positionOfKeyword.size();i++){
+                for (int i = 0; i < positionOfKeyword.size(); i++) {
                     //checking for impression words forward 15 words
-                    var localCounter1 =0;
-                    for(var forward = positionOfKeyword.get(i);forward < textSplited.size();forward++ ){
+                    var localCounter1 = 0;
+                    for (var forward = positionOfKeyword.get(i); forward < textSplited.size(); forward++) {
                         positiveScore += positiveScore(textSplited.get(forward));
                         negativeScore += negativeScore(textSplited.get(forward));
                         localCounter1++;
-                        if(localCounter1 == 15) //if 15 words reached, break
+                        if (localCounter1 == 15) //if 15 words reached, break
                             break;
                     }//forward for
 
                     //checking or impression words backward 15 words
                     var locaCounter2 = 0;
-                    for(var backward = positionOfKeyword.get(i); backward >=0;backward--){
+                    for (var backward = positionOfKeyword.get(i); backward >= 0; backward--) {
                         //if(textSplited.get(backward).matches("(.*)Υποχρεωτικά(.*)") )
-                            //System.out.println("Brika good word backward "+textSplited.get(i));
+                        //System.out.println("Brika good word backward "+textSplited.get(i));
                         positiveScore += positiveScore(textSplited.get(backward));
                         negativeScore += negativeScore(textSplited.get(backward));
                         locaCounter2++;
-                        if(locaCounter2 == 15) //if 15 words reached, break
+                        if (locaCounter2 == 15) //if 15 words reached, break
                             break;
                     } // backward for
 
                 }//iterate the array holding position of keywords in text
                 // no we have both scores. adding them to the map
-                if(positiveScore > negativeScore) ImpressionMap.put(keyWord,"Positive");
-                else if(negativeScore > positiveScore) ImpressionMap.put(keyWord,"Negative");
-                else ImpressionMap.put(keyWord,"Neutral");
+                if (positiveScore > negativeScore) ImpressionMap.put(keyWord, "Positive");
+                else if (negativeScore > positiveScore) ImpressionMap.put(keyWord, "Negative");
+                else ImpressionMap.put(keyWord, "Neutral");
             }//End of IF keyword exists in text
 
         }//keyword for
@@ -95,11 +94,14 @@ public class Impression {
         printImpressionMap();
     }
 
-    public void printImpressionMap() {
-        ImpressionMap.forEach((key, value) -> { System.out.println("For keyWord ->"+key+"<- Impression is "+value); });
+    private void printImpressionMap() {
+        if(ImpressionMap.isEmpty()) System.out.println("o impressionMap einai adeios");
+        ImpressionMap.forEach((key, value) -> {
+            System.out.println("For keyWord ->" + key + "<- Impression is " + value);
+        });
     }
 
-    public static void loadImpressionWords() {
+    static void loadImpressionWords() {
         badWordsEn = new ArrayList<>();
         badWordsGr = new ArrayList<>();
         goodWordsEn = new ArrayList<>();
@@ -138,39 +140,38 @@ public class Impression {
         }
     }
 
-    private int positiveScore(String input){
+    private int positiveScore(String input) {
         int score = 0;
-        if(goodWordsEn.isEmpty() && goodWordsGr.isEmpty()){
+        if (goodWordsEn.isEmpty() && goodWordsGr.isEmpty()) {
             System.err.println("No words found for Good Impressions");
             return 0;
         }
-        for(String tmp : goodWordsEn){
-            if(input.matches("(.*)"+tmp+"(.*)"))
+        for (String tmp : goodWordsEn) {
+            if (input.matches("(.*)" + tmp + "(.*)"))
                 score++;
         }
-        for(String tmp : goodWordsGr){
-            if(input.matches("(.*)"+tmp+"(.*)"))
+        for (String tmp : goodWordsGr) {
+            if (input.matches("(.*)" + tmp + "(.*)"))
                 score++;
         }
         return score;
     }
 
-    private int negativeScore(String input){
+    private int negativeScore(String input) {
         int score = 0;
-        if(badWordsGr.isEmpty() && badWordsEn.isEmpty()){
+        if (badWordsGr.isEmpty() && badWordsEn.isEmpty()) {
             System.err.println("No words found for Bad Impressions");
             return 0;
         }
-        for(String tmp : badWordsEn){
-            if(input.matches("(.*)"+tmp+"(.*)"))
+        for (String tmp : badWordsEn) {
+            if (input.matches("(.*)" + tmp + "(.*)"))
                 score++;
         }
-        for(String tmp : badWordsGr){
-            if(input.matches("(.*)"+tmp+"(.*)"))
+        for (String tmp : badWordsGr) {
+            if (input.matches("(.*)" + tmp + "(.*)"))
                 score++;
         }
         return score;
     }
 
 }
-// kathe thread exei ena impression, pou to kathena mesa krataei ena map URL-keyword kai ejagei impression

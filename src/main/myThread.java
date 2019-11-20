@@ -18,7 +18,7 @@ public class myThread implements Runnable {
     boolean suspended = false;
     private String url;
     private ArrayList<String> keyWords;
-    private String keimeno="";
+    private String keimeno = "";
 
     // this.URL, < keyWord,timesFound>
     private LinkedHashMap<String, LinkedHashMap <String,Integer> > singleResults;
@@ -28,10 +28,7 @@ public class myThread implements Runnable {
 
     public boolean containsKeyWord(String keyword){
         LinkedHashMap<String,Integer> tmp = singleResults.get(this.url);
-        if(tmp.containsKey(keyword) && tmp.get(keyword)>0)
-            return true;
-        else
-            return false;
+        return tmp != null && tmp.containsKey(keyword) && tmp.get(keyword) > 0;
     }
 
     public myThread(String name,String url,ArrayList<String> keyWords) {
@@ -58,7 +55,10 @@ public class myThread implements Runnable {
     public String getName() { return this.threadName; }
 
     public void run() {
+        System.out.println("bika run");
         try {
+            //TODO o elegxos trexei mia mono fora otan arxisei to thread oxi oso trexoun
+
             StringBuffer got = new StringBuffer();
             try {
                 Document doc = Jsoup.connect(this.url).get();
@@ -80,6 +80,7 @@ public class myThread implements Runnable {
                 while (matcher.find())
                     timesFound++;
                 this.keimeno = got.toString();
+
                 //System.out.println("Eimai to thread "+this.threadName+" brika to "+tmpKey+" sto "+this.url+" "+timesFound+" fores");
                 keyWordCount.put(tmpKey,timesFound);
             }
@@ -93,7 +94,7 @@ public class myThread implements Runnable {
                 }
             }
             //Thread.sleep(1000);
-            synchronized (this) { // used to pause the threads
+            synchronized (this) { //pause the thread
                 while (suspended) {
                     wait();
                 }
@@ -101,11 +102,11 @@ public class myThread implements Runnable {
         } catch (InterruptedException e) {
             System.out.println("Thread " + threadName + " interrupted.");
         }
-        //     System.out.println("Thread " + threadName + " exiting.");
+             System.out.println("Thread " + threadName + " finished.");
     }
 
-    public void start() { //System.out.println("Starting " + threadName);
-        if (t == null) {
+    void start() { //System.out.println("Starting " + threadName);
+        if (t == null) { // an valw edw suxronize sleep all??
             t = new Thread(this, threadName);
             t.start();
         }
