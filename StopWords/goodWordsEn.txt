@@ -12,6 +12,11 @@ advantages
 kind
 sweet
 popular
+positive
+happy
+thrill
 honor
 honored
 honors
+victorious
+victory

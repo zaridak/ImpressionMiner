@@ -32,3 +32,11 @@ create table keywords
     constraint keywords_pkey
         primary key (mdate, keyword)
 );
+
+create table stats
+(
+    id         SERIAL PRIMARY KEY,
+    impression varchar(2048),
+    date       varchar(64)
+)
+

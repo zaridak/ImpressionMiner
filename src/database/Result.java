@@ -116,7 +116,8 @@ public class Result implements ResultDAO {
                     ResultSet totalurl = stfurl.executeQuery("select count (distinct url) as totalURL from results  where mdate ='" + change + "'");
                     if (totalurl.next()) { }
                     int count = totalurl.getInt("totalURL");
-                    System.out.println("Search took place at " + count + " urls");
+                    if(count > 0 )
+                        System.out.println("Search took place at " + count + " urls");
 
                     //now retrieve which keywords exists in each individual search
                     ResultSet kws = stfurl.executeQuery("select distinct keyword as kw from results where mdate = '" + change + "'");
@@ -156,7 +157,8 @@ public class Result implements ResultDAO {
             if (totalurl.next()) {
             }
             int count = totalurl.getInt("totalURL");
-            System.out.println("Search took place at " + count + " urls");
+            if(count > 0 )
+                System.out.println("Search took place at " + count + " urls");
 
             //now retrieve which keywords exists in each individual search
             ResultSet kws = stfurl.executeQuery("select distinct keyword as kw from results where mdate = '" + change + "'");
@@ -217,7 +219,7 @@ public class Result implements ResultDAO {
 //            System.err.println( e.getClass().getName()+": "+ e.getMessage() );
 //        }
 //    }
-    
+
     public void deleteAllDB() {
         try {
             Statement st = conn.createStatement();

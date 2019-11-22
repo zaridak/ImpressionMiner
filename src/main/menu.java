@@ -142,7 +142,6 @@ public class menu {
                 res2.loadAllFromDB();
             }
             else if(userInput == 6){
-                System.out.println("kalw delte");
                 Result res2 = new Result();
                 res2.deleteAllDB();
             }

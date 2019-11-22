@@ -55,7 +55,6 @@ public class myThread implements Runnable {
     public String getName() { return this.threadName; }
 
     public void run() {
-        System.out.println("bika run");
         try {
             //TODO o elegxos trexei mia mono fora otan arxisei to thread oxi oso trexoun
 

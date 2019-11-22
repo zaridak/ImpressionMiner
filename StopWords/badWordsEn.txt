@@ -16,3 +16,4 @@ disadvantage
 odd
 dishonor
 dishonored
+enemy
