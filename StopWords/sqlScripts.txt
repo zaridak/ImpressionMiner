@@ -35,8 +35,10 @@ create table keywords
 
 create table stats
 (
-    id         SERIAL PRIMARY KEY,
+    id         serial not null
+        constraint stats_pkey
+            primary key,
     impression varchar(2048),
     date       varchar(64)
-)
+);
 
