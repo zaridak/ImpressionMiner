@@ -9,7 +9,8 @@ class DBConnection { //package private class
     private static DBConnection instance;
     private Connection connection;
 
-    private final String url = "jdbc:postgresql://localhost/postgres";
+   // private final String url = "jdbc:postgresql://localhost/postgres";
+    private final String url = "jdbc:postgresql://localhost:5434/postgres";
     private final String username = "postgres";
     private final String password = "root";
 

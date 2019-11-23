@@ -57,7 +57,7 @@ public class Result implements ResultDAO {
             conn = DBConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
         } catch (Exception ex) {
-            System.out.println("Exception at result construction getting DBConnection " + ex.getMessage());
+            System.err.println("Exception at result construction getting DBConnection " + ex.getMessage());
         }
     }
 
@@ -66,7 +66,7 @@ public class Result implements ResultDAO {
             conn = DBConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
         } catch (Exception ex) {
-            System.out.println("Exception at result construction getting DBConnection " + ex.getMessage());
+            System.err.println("Exception at result construction getting DBConnection " + ex.getMessage());
         }
     }
 
